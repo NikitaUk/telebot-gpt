@@ -1,0 +1,31 @@
+import telebot
+import sqlite3
+import config
+from telebot import types
+from dataBase import loginUser
+bot = telebot.TeleBot(config.TELEBOTE_API)
+
+#telebot
+@bot.message_handler(commands=['start'])
+def main(message):
+    #keyboard
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    item1 = types.KeyboardButton("Регистрация")
+    item2 = types.KeyboardButton("Вход")
+    markup.add(item1, item2)
+    try:
+        if loginUser(message.chat.id):
+            bot.send_message(message.chat.id, f"Здравствуйте, {message.from_user.first_name}. Задайте любой вопрос")
+        else:
+            bot.send_message(message.chat.id, f"Здравствуйте, {message.from_user.first_name}. Вам нужно зарегистрироваться или войти.", reply_markup=markup)
+    except:
+        bot.send_message(message.chat.id, "К сожалению произошла ошибка подключения к базе данных. Попробуйте позже.")
+@bot.message_handler(content_types=['text'])
+def txt(message):
+    if message.chat.type == 'private':
+        if message.text == 'Регистрация':
+            bot.send_message(message.chat.id, "Введите номер телефона: ", reply_markup=types.ReplyKeyboardRemove())
+        elif message.text == 'Вход':
+            bot.send_message(message.chat.id, "Введите номер телефона: ", reply_markup=types.ReplyKeyboardRemove())
+
+bot.polling(non_stop=True)
